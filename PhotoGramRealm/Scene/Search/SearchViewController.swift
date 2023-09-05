@@ -71,9 +71,22 @@ extension SearchViewController: UICollectionViewDataSource, UICollectionViewDele
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SearchCollectionViewCell", for: indexPath) as? SearchCollectionViewCell else { return UICollectionViewCell() }
         
-        let data = imageList.results![indexPath.item].urls.thumb
-        cell.backgroundColor = .yellow        
+        let link = imageList.results![indexPath.item].urls.thumb
+        
+        guard let url = URL(string: link) else { return UICollectionViewCell() }
+        
+        DispatchQueue.global().async {
+            
+            let data = try! Data(contentsOf: url)
+            let image = UIImage(data: data)
+            
+            DispatchQueue.main.async {
+                cell.imageView.image = image
+                cell.backgroundColor = .yellow
+            }
+        }
         return cell
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
