@@ -23,9 +23,11 @@ class DetailViewController: BaseViewController {
     
     let contentTextField: WriteTextField = {
         let view = WriteTextField()
-        view.placeholder = "날짜를 입력해주세요"
+        view.placeholder = "내용을 입력해주세요"
         return view
     }()
+    
+    let repository = DiaryTableRepository()
     
     override func configure() {
         super.configure()
@@ -35,7 +37,7 @@ class DetailViewController: BaseViewController {
         guard let data = data else { return }
         
         titleTextField.text = data.diaryTitle
-        contentTextField.text = data.dairyContents
+        contentTextField.text = data.diaryContents
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "수정", style: .plain, target: self, action: #selector(editButtonClicked))
     }
@@ -44,15 +46,11 @@ class DetailViewController: BaseViewController {
         
         //Realm Update
         guard let data = data else { return }
-        let item = DiaryTable(value: ["_id": data._id, "diaryTitle": titleTextField.text!, "dairyContents": contentTextField.text!])
+        guard let titleText = titleTextField.text else { return }
+        guard let contentText = contentTextField.text else { return }
+        //let item = DiaryTable(value: ["_id": data._id, "diaryTitle": titleTextField.text!, "dairyContents": contentTextField.text!])
         
-        do {
-            try realm.write {
-                realm.add(item, update: .modified)
-            }
-        } catch let error {
-            print("Modified Error", error)
-        }
+        repository.updateItem(id: data._id, title: titleText, contents: contentText)
         
         navigationController?.popViewController(animated: true)
     }

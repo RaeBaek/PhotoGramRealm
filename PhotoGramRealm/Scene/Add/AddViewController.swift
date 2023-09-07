@@ -58,6 +58,8 @@ class AddViewController: BaseViewController {
     }()
     
     var fullURL: String?
+    
+    let repository = DiaryTableRepository()
       
     override func viewDidLoad() {
         super.viewDidLoad() //안하는 경우 생기는 문제
@@ -66,17 +68,11 @@ class AddViewController: BaseViewController {
     }
     
     @objc func saveButtonClicked() {
-          
-        // realm 파일에 접근할 수 있도록, 위치를 찾는 코드
-        let realm = try! Realm()
+        
         guard let text = titleTextField.text else { return }
+        let task = DiaryTable(diaryTitle: text, diaryDate: Date(), diaryContents: contentTextView.text, diaryPhoto: fullURL)
         
-        let task = DiaryTable(diaryTitle: text, diaryDate: Date(), dairyContents: contentTextView.text, diaryPhoto: fullURL)
-        
-        try! realm.write {
-            realm.add(task)
-            print("Realm Add Succeed")
-        }
+        repository.createItem(task)
         
         if userImageView.image != nil {
             saveImageToDocument(fileName: "hoon_\(task._id).jpg", image: userImageView.image!)

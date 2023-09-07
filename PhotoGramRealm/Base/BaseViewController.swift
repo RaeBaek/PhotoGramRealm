@@ -19,7 +19,7 @@ class BaseViewController: UIViewController {
         view.backgroundColor = Constants.BaseColor.background
     }
     
-    func setConstraints() {}
+    func setConstraints() { }
     
     func showAlertMessage(title: String, button: String = "확인", handler: (() -> ())? = nil) { //매개변수 기본값
         let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)

@@ -20,23 +20,25 @@ class HomeViewController: BaseViewController {
         return view
     }()
     
-    // Realm Read
-    let realm = try! Realm()
+    let repository = DiaryTableRepository()
     
     var tasks: Results<DiaryTable>!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tasks = realm.objects(DiaryTable.self).sorted(byKeyPath: "diaryTitle", ascending: true)
+        print(repository.realm.configuration.fileURL)
         
-        print(realm.configuration.fileURL)
+        tasks = repository.fetch()
+        
+        repository.checkSchemaVersion()
+        
+        print(tasks)
         
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print(#function)
         
         tableView.reloadData()
     }
@@ -63,7 +65,7 @@ class HomeViewController: BaseViewController {
     }
     
     @objc func backupButtonClicked() {
-        
+        navigationController?.pushViewController(BackupViewController(), animated: true)
     }
     
     @objc func sortButtonClicked() {
@@ -72,18 +74,7 @@ class HomeViewController: BaseViewController {
     
     @objc func filterButtonClicked() {
         
-        let result = realm.objects(DiaryTable.self).where {
-            // 1. 대소문자 구별 없음 - caseInsensitive
-            //$0.diaryTitle.contains("제목", options: .caseInsensitive)
-            
-            // 2. Bool
-            //$0.diaryLike == true
-            
-            // 3. 사진이 있는 데이터만 불러오기 (diaryPhoto의 nil 여부 판단)
-            $0.diaryPhoto != nil
-        }
-        
-        tasks = result
+        tasks = repository.fetchFilter()
         
         tableView.reloadData()
         
@@ -102,7 +93,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         let data = tasks[indexPath.row]
         
         cell.titleLabel.text = data.diaryTitle
-        cell.contentLabel.text = data.dairyContents
+        cell.contentLabel.text = data.diaryContents
         cell.dateLabel.text = "\(data.diaryDate)"
         cell.diaryImageView.image = loadImageFromDocument(fileName: "hoon_\(data._id).jpg")
         
